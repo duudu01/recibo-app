@@ -31,23 +31,49 @@ for chave, valor in defaults.items():
         st.session_state[chave] = valor
 
 # ============================================================
-# DADOS FIXOS DAS LOJAS
+# DADOS FIXOS DAS EMPRESAS
 # ============================================================
+
+ENDERECO_MATRIZ = "RUA XV DE NOVEMBRO, 7535"
+CIDADE_MATRIZ = "JOINVILLE - SC"
+CEP_MATRIZ = "89237-001"
+FONE_MATRIZ = "(47) 9 99110-6252"
 
 LOJAS = {
     "Colina Matriz": {
         "razao": "COLINA BIKE CENTER (MATRIZ)",
-        "endereco": "RUA XV DE NOVEMBRO, 7535",
-        "cidade": "JOINVILLE - SC",
-        "cep": "89237-001",
-        "fone": "(47) 9 99110-6252",
+        "cnpj": "",
+        "endereco": ENDERECO_MATRIZ,
+        "cidade": CIDADE_MATRIZ,
+        "cep": CEP_MATRIZ,
+        "fone": FONE_MATRIZ,
     },
+
     "Colina Filial": {
         "razao": "COLINA BIKE CENTER (FILIAL)",
+        "cnpj": "",
         "endereco": "RUA SÃO PAULO, 1182 - SALA 18",
         "cidade": "JOINVILLE - SC",
         "cep": "89202-200",
         "fone": "(47) 9 9243-5997",
+    },
+
+    "J&M Comércio": {
+        "razao": "J&M COMÉRCIO DE PEÇAS E BICICLETAS LTDA",
+        "cnpj": "47.028.848/0001-92",
+        "endereco": ENDERECO_MATRIZ,
+        "cidade": CIDADE_MATRIZ,
+        "cep": CEP_MATRIZ,
+        "fone": FONE_MATRIZ,
+    },
+
+    "Golembiewski Comércio": {
+        "razao": "GOLEMBIEWSKI COMÉRCIO DE PEÇAS E BICICLETAS LTDA",
+        "cnpj": "54.496.590/0001-14",
+        "endereco": ENDERECO_MATRIZ,
+        "cidade": CIDADE_MATRIZ,
+        "cep": CEP_MATRIZ,
+        "fone": FONE_MATRIZ,
     },
 }
 
@@ -140,7 +166,11 @@ def gerar_html_documento(
         """
 
     data_emissao = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    obs = esc(observacoes).replace("\n", "<br>") if observacoes.strip() else "Sem observações."
+    obs = (
+        esc(observacoes).replace("\n", "<br>")
+        if observacoes.strip()
+        else "Sem observações."
+    )
 
     return f"""
 <!DOCTYPE html>
@@ -223,7 +253,7 @@ def gerar_html_documento(
     }}
 
     .cabecalho td {{
-        height: 27mm;
+        height: 31mm;
     }}
 
     .emitente {{
@@ -347,6 +377,7 @@ def gerar_html_documento(
     <button class="btn-print" onclick="window.print()">
         🖨️ IMPRIMIR DOCUMENTO
     </button>
+
     <div class="hint">
         A impressão acontece nesta própria tela, sem download e sem pop-up.
     </div>
@@ -358,6 +389,7 @@ def gerar_html_documento(
         <tr>
             <td class="emitente">
                 <b>{esc(loja['razao'])}</b><br>
+                <b>CNPJ: {esc(loja.get('cnpj') or "NÃO INFORMADO")}</b><br>
                 {esc(loja['endereco'])}<br>
                 {esc(loja['cidade'])} | CEP {esc(loja['cep'])}<br>
                 Fone: {esc(loja['fone'])}
@@ -388,6 +420,7 @@ def gerar_html_documento(
                 <div class="label">Nome / Razão Social</div>
                 <div class="value">{esc(nome_cli or "NÃO INFORMADO")}</div>
             </td>
+
             <td>
                 <div class="label">CPF / CNPJ</div>
                 <div class="value">{esc(cpf_cli or "NÃO INFORMADO")}</div>
@@ -428,19 +461,23 @@ def gerar_html_documento(
         <tr>
             <td colspan="4" class="section">DADOS DA OPERAÇÃO</td>
         </tr>
+
         <tr>
             <td>
                 <div class="label">Vendedor</div>
                 <div class="value">{esc(vendedor or "NÃO INFORMADO")}</div>
             </td>
+
             <td>
                 <div class="label">Forma de pagamento</div>
                 <div class="value">{esc(forma_pagamento)}</div>
             </td>
+
             <td>
                 <div class="label">Número</div>
                 <div class="value">{numero:06d}</div>
             </td>
+
             <td>
                 <div class="label">Série</div>
                 <div class="value">{esc(serie)}</div>
@@ -457,6 +494,7 @@ def gerar_html_documento(
             <th width="14%">V. UNIT.</th>
             <th width="14%">V. TOTAL</th>
         </tr>
+
         {linhas}
     </table>
 
@@ -464,23 +502,28 @@ def gerar_html_documento(
         <tr>
             <td colspan="5" class="section">TOTAIS</td>
         </tr>
+
         <tr>
             <td>
                 <div class="label">Produtos</div>
                 <div class="value">{moeda(total_produtos)}</div>
             </td>
+
             <td>
                 <div class="label">Frete</div>
                 <div class="value">{moeda(frete)}</div>
             </td>
+
             <td>
                 <div class="label">Desconto</div>
                 <div class="value">{moeda(desconto)}</div>
             </td>
+
             <td>
                 <div class="label">ICMS demonstrativo</div>
                 <div class="value">{moeda(icms_estimado)}</div>
             </td>
+
             <td>
                 <div class="label">Total do documento</div>
                 <div class="valor-destaque">{moeda(total_final)}</div>
@@ -492,11 +535,13 @@ def gerar_html_documento(
         <tr>
             <td class="section">INFORMAÇÕES COMPLEMENTARES</td>
         </tr>
+
         <tr>
             <td class="obs">
                 <b>Observações:</b><br>
                 {obs}
                 <br><br>
+
                 <span class="mini">
                     ICMS e IPI exibidos apenas como demonstrativos internos.
                     IPI demonstrativo: {moeda(ipi_estimado)}.
@@ -576,11 +621,24 @@ st.markdown(
 st.sidebar.header("🏢 Unidade emissora")
 
 loja_nome = st.sidebar.radio(
-    "Selecione a loja",
+    "Selecione a empresa",
     list(LOJAS.keys())
 )
 
 loja = LOJAS[loja_nome]
+
+# Exibe os dados da empresa selecionada
+st.sidebar.markdown("---")
+st.sidebar.markdown("### 🏢 Empresa selecionada")
+st.sidebar.write(f"**{loja['razao']}**")
+
+if loja.get("cnpj"):
+    st.sidebar.write(f"**CNPJ:** {loja['cnpj']}")
+
+st.sidebar.write(f"**Endereço:** {loja['endereco']}")
+st.sidebar.write(f"**Cidade:** {loja['cidade']}")
+st.sidebar.write(f"**CEP:** {loja['cep']}")
+st.sidebar.write(f"**Fone:** {loja['fone']}")
 
 st.sidebar.divider()
 
@@ -592,6 +650,7 @@ numero_input = st.sidebar.number_input(
     value=int(st.session_state.numero_nota),
     step=1
 )
+
 st.session_state.numero_nota = int(numero_input)
 
 serie = st.sidebar.text_input("Série", value="02", max_chars=5)
@@ -613,6 +672,7 @@ st.sidebar.divider()
 st.sidebar.subheader("🧑‍💼 Operação")
 
 vendedor = st.sidebar.text_input("Vendedor")
+
 forma_pagamento = st.sidebar.selectbox(
     "Forma de pagamento",
     [
@@ -766,6 +826,7 @@ with cv3:
     total_produtos = sum(
         float(i["Total"]) for i in st.session_state.produtos
     )
+
     total_documento = max(
         0.0,
         total_produtos + float(frete) - float(desconto)
@@ -830,6 +891,7 @@ if emitir:
         st.error(
             "Preencha antes de emitir: " + ", ".join(erros)
         )
+
     else:
         html_emitido = gerar_html_documento(
             loja=loja,
